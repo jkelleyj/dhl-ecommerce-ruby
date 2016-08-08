@@ -26,6 +26,14 @@ module DHL
         end.flatten
       end
 
+      def self.closeout_all(location_id)
+        response = DHL::Ecommerce.request :get, "https://api.dhlglobalmail.com/v1/#{DHL::Ecommerce::Location.resource_name.downcase}s/#{location_id}/closeout/all"
+        response[:manifest_list][:manifest] = [response[:manifest_list][:manifest]] unless response[:manifest_list][:manifest].is_a? Array
+        response[:manifest_list][:manifest].each.collect do |attributes|
+          new attributes.merge(location_id: location_id)
+        end
+      end
+
       private
 
       def self.add_labels_to_closeout(location_id, closeout_id, labels)
